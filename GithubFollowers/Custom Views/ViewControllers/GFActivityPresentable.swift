@@ -25,7 +25,7 @@ extension ActivityPresentable where Self: UIViewController {
     
     internal func dismissLoadingView() {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             let loadingView = self.findActivity()
             loadingView?.removeFromSuperview()
         }
