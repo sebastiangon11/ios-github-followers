@@ -35,26 +35,19 @@ class GFUserInfoHeaderVC: UIViewController {
     }
     
     private func configure() {
+        avatarImageView.downloadAvatarImage(fromURL: user.avatarUrl)
+        
         usernameLabel.text = user.login
         
         nameLabel.text = user.name ?? ""
         
-        locationImageView.image = UIImage(systemName: SFSymbols.location)
+        locationImageView.image = SFSymbols.location
         locationImageView.tintColor = .secondaryLabel
         
         locationLabel.text = user.location ?? "No Location"
         
         bioLabel.text = user.bio ?? "No bio available"
         bioLabel.numberOfLines = 3
-        
-        self.downloadAvatarImage()
-    }
-    
-    private func downloadAvatarImage() {
-        NetworkManager.shared.downloadImage(from: user.avatarUrl) { [weak self] image in
-            guard let self = self else { return }
-            DispatchQueue.main.async { self.avatarImageView.image = image }
-        }
     }
     
     private func addSubviews() {
@@ -101,7 +94,7 @@ class GFUserInfoHeaderVC: UIViewController {
             bioLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: textImagePadding),
             bioLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
             bioLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bioLabel.heightAnchor.constraint(equalToConstant: 60)
+            bioLabel.heightAnchor.constraint(equalToConstant: 90)
         ])
     }
 }

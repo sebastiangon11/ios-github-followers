@@ -7,15 +7,7 @@
 
 import UIKit
 
-protocol GFItemInfoVCDelegate: AnyObject {
-    func didTapGitHubProfile(for user: User)
-    func didTapGetFollowers(for user: User)
-}
-
 class GFItemInfoVC: UIViewController {
-    
-    weak var delegate: GFItemInfoVCDelegate!
-    
     let stackView = UIStackView()
     let itemInfoViewOne = GFItemInfoView()
     let itemInfoViewTwo = GFItemInfoView()
