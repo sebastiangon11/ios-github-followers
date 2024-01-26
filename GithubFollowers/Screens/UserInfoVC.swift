@@ -15,7 +15,7 @@ class UserInfoVC: UIViewController {
     
     let scrollView = UIScrollView()
     let contentView = UIView()
-
+    
     let headerView = UIView()
     let itemViewOne = UIView()
     let itemViewTwo = UIView()
@@ -26,7 +26,7 @@ class UserInfoVC: UIViewController {
     var username: String!
     
     weak var delegate: UserInfoVCDelegate!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.configureViewController()
@@ -36,14 +36,12 @@ class UserInfoVC: UIViewController {
     }
     
     private func getUserInfo() {
-        NetworkManager.shared.getUserInfo(for: username) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let userInfo):
-                DispatchQueue.main.async { self.configureUIElements(with: userInfo) }
-            case .failure(let error):
-                self.presentGFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
+        Task {
+            do {
+                let userInfo = try await NetworkManager.shared.getUserInfo(for: username)
+                self.configureUIElements(with: userInfo)
+            } catch let error as GFError {
+                self.presentGFAlert(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
             }
         }
     }
@@ -80,7 +78,7 @@ class UserInfoVC: UIViewController {
     
     private func configureViewController() {
         view.backgroundColor = .systemBackground
-
+        
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissVC))
         navigationItem.rightBarButtonItem = doneButton
     }
@@ -88,12 +86,12 @@ class UserInfoVC: UIViewController {
     private func layoutUI() {
         let padding: CGFloat = 20
         let itemHeight: CGFloat = 140
-
+        
         itemViews = [headerView, itemViewOne, itemViewTwo, dateLabel]
         
         for itemView in itemViews {
             contentView.addSubview(itemView)
-        
+            
             itemView.translatesAutoresizingMaskIntoConstraints = false
             
             NSLayoutConstraint.activate([
@@ -132,10 +130,10 @@ class UserInfoVC: UIViewController {
 extension UserInfoVC: GFRepoInfoVCDelegate {
     func didTapGitHubProfile(for user: User) {
         guard let url = URL(string: user.htmlUrl) else {
-            presentGFAlertOnMainThread(title: "Invalid URL", message: "The url attached to this user is invalid", buttonTitle: "Ok")
+            presentGFAlert(title: "Invalid URL", message: "The url attached to this user is invalid", buttonTitle: "Ok")
             return
         }
-
+        
         presentSafariVC(with: url)
     }
 }
@@ -143,10 +141,10 @@ extension UserInfoVC: GFRepoInfoVCDelegate {
 extension UserInfoVC: GFFollowerInfoVCDelegate {
     func didTapGetFollowers(for user: User) {
         guard user.followers != 0 else {
-            presentGFAlertOnMainThread(title: "No followers", message: "This user has no followers. What a shame 🥲.", buttonTitle: "Ok")
+            presentGFAlert(title: "No followers", message: "This user has no followers. What a shame 🥲.", buttonTitle: "Ok")
             return
         }
-
+        
         self.delegate.didRequestFollowers(for: user.login)
         
         dismissVC()

@@ -57,33 +57,32 @@ class FollowerListVC: UIViewController {
     
     @objc func addFavorite() {
         self.showLoadingView()
-
-        NetworkManager.shared.getUserInfo(for: username) { [weak self] result in
-            guard let self = self else { return }
+        
+        Task {
+            do {
+                let user = try await NetworkManager.shared.getUserInfo(for: username)
+                self.addUserToFavorites(user: user)
+            } catch let error as GFError {
+                self.presentGFAlert(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
+            }
             
             self.dismissLoadingView()
-
-            switch result {
-            case .success(let user):
-                self.addUserToFavorites(user: user)
-            case .failure(let error):
-                self.presentGFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
-            }
         }
     }
     
     func addUserToFavorites(user: User) {
         let favourite = Follower(login: user.login, avatarUrl: user.avatarUrl)
-
+        
         PersistenceManager.updateWith(favorite: favourite, actionType: .add) { [weak self] error in
             guard let self = self else { return }
             
-            if let error {
-                self.presentGFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
-            } else {
-                self.presentGFAlertOnMainThread(title: "Success!", message: "You have successfully favorited this user 🎉", buttonTitle: "Hooray!")
+            DispatchQueue.main.async {
+                if let error {
+                    self.presentGFAlert(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
+                } else {
+                    self.presentGFAlert(title: "Success!", message: "You have successfully favorited this user 🎉", buttonTitle: "Hooray!")
+                }
             }
-            
         }
     }
     
@@ -109,17 +108,15 @@ class FollowerListVC: UIViewController {
     func getFollowers(username: String, page: Int) {
         self.showLoadingView()
         
-        NetworkManager.shared.getFollowers(for: username, page: page) { [weak self] result in
-            guard let self = self else { return }
-
-            self.dismissLoadingView()
-
-            switch result {
-            case .success(let followers):
+        Task {
+            do {
+                let followers = try await NetworkManager.shared.getFollowers(for: username, page: page)
                 self.updateUI(with: followers)
-            case .failure(let gfError):
-                self.presentGFAlertOnMainThread(title: "Bad stuff happened", message: gfError.rawValue, buttonTitle: "Ok")
+            } catch let error as GFError {
+                self.presentGFAlert(title: "Bad stuff happened", message: error.rawValue, buttonTitle: "Ok")
             }
+            
+            self.dismissLoadingView()
         }
     }
     
@@ -179,7 +176,7 @@ extension FollowerListVC: UICollectionViewDelegate {
         let userInfoController = UserInfoVC()
         userInfoController.username = follower.login
         userInfoController.delegate = self
-
+        
         let navigationController = UINavigationController(rootViewController: userInfoController)
         
         present(navigationController, animated: true)
@@ -216,5 +213,5 @@ extension FollowerListVC: UserInfoVCDelegate {
 extension FollowerListVC : ActivityPresentable {}
 
 extension FollowerListVC: EmptyStatePresentable {}
-                                
+
 extension FollowerListVC: AlertPresentable {}
