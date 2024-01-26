@@ -96,3 +96,7 @@ extension FavouriteListVC: UITableViewDelegate, UITableViewDataSource {
         }
     }
 }
+
+extension FavouriteListVC: AlertPresentable {}
+
+extension FavouriteListVC: EmptyStatePresentable {}

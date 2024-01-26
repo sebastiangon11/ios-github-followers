@@ -35,3 +35,4 @@ extension ActivityPresentable where Self: UIViewController {
         return view.subviews.compactMap { $0 as? GFLoadingView }.first
     }
 }
+

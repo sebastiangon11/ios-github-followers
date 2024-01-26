@@ -93,3 +93,5 @@ extension SearchVC: UITextFieldDelegate {
         return true
     }
 }
+
+extension SearchVC: AlertPresentable {}

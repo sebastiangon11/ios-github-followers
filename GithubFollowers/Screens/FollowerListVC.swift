@@ -9,7 +9,7 @@ import UIKit
 
 
 
-class FollowerListVC: UIViewController, ActivityPresentable {
+class FollowerListVC: UIViewController {
     
     enum Section { case main }
     
@@ -206,3 +206,9 @@ extension FollowerListVC: UserInfoVCDelegate {
         getFollowers(username: username, page: page)
     }
 }
+
+extension FollowerListVC : ActivityPresentable {}
+
+extension FollowerListVC: EmptyStatePresentable {}
+                                
+extension FollowerListVC: AlertPresentable {}

@@ -129,3 +129,7 @@ extension UserInfoVC: GFItemInfoVCDelegate {
         dismissVC()
     }
 }
+
+extension UserInfoVC: AlertPresentable {}
+
+extension UserInfoVC: SafariPresentable {}
