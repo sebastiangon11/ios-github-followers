@@ -95,3 +95,5 @@ extension SearchVC: UITextFieldDelegate {
 }
 
 extension SearchVC: AlertPresentable {}
+
+#Preview { SearchVC() }
